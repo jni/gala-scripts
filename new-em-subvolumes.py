@@ -16,8 +16,9 @@ for i, vol in enumerate(gts):
     fn = 'ground-truth-%i.lzf.h5' % i
     vol_relabel = label(vol)
     print(np.max(vol_relabel))
-    imio.write_h5_stack(vol.astype(np.uint16), fn, compression='lzf')
-    
+    imio.write_h5_stack(vol_relabel.astype(np.uint16), fn,
+                        compression='lzf')
+
 pr = imio.read_image_stack('membrane/*.tiff')
 prs = [pr[s] for s in slices]
 for i, vol in enumerate(prs):
