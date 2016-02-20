@@ -29,10 +29,12 @@ def test(index, policy):
 if __name__ == '__main__':
     trees = {}
     for training_index in range(4):
+        print('training %i' % training_index)
         policy = train(training_index)
         for testing_index in range(4):
             if testing_index == training_index:
                 continue
+            print('testing %i' % testing_index)
             tree = test(testing_index, policy)
             trees[(training_index, testing_index)] = tree
     import pickle
