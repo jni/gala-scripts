@@ -10,7 +10,7 @@ def train(index):
     gt_tr = imio.read_image_stack('ground-truth-%i.lzf.h5' % index)
     g = agglo.Rag(ws_tr, pr_tr,
                   feature_manager=fman)
-    data, labels = g.learn_agglomerate(gt_tr, fman, min_num_epochs=4)
+    data, labels = g.learn_agglomerate(gt_tr, fman, min_num_epochs=4)[0][:2]
     rf = classify.DefaultRandomForest()
     rf.fit(data, labels[:, 0])
     policy = agglo.classifier_priority(fman, rf)
