@@ -13,7 +13,7 @@ def train(index):
     data, labels = g.learn_agglomerate(gt_tr, fman, min_num_epochs=4)[0][:2]
     rf = classify.DefaultRandomForest()
     rf.fit(data, labels[:, 0])
-    policy = agglo.classifier_priority(fman, rf)
+    policy = agglo.classifier_probability(fman, rf)
     return policy
 
 
