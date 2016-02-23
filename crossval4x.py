@@ -11,6 +11,11 @@ def train(index):
     g = agglo.Rag(ws_tr, pr_tr,
                   feature_manager=fman)
     data, labels = g.learn_agglomerate(gt_tr, fman, min_num_epochs=4)[0][:2]
+    print('total training data:', data.shape)
+    print('size in MB:', data.size * data.itemsize / 1e6)
+    classify.save_training_data_to_disk([data, labels],
+                                        fn='training-data-%i.h5',
+                                        names=['data', 'labels'])
     rf = classify.DefaultRandomForest()
     rf.fit(data, labels[:, 0])
     policy = agglo.classifier_probability(fman, rf)
