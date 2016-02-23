@@ -42,6 +42,9 @@ if __name__ == '__main__':
             print('testing %i' % testing_index)
             tree = test(testing_index, policy)
             trees[(training_index, testing_index)] = tree
+            with open('results-%i-%i.pickle' % (training_index, testing_index),
+                      'wb') as fout:
+                pickle.dump(tree, fout, protocol=-1)
     import pickle
-    with open('results', 'wb') as fout:
+    with open('results.pickle', 'wb') as fout:
         pickle.dump(trees, fout, protocol=-1)
