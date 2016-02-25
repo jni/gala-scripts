@@ -15,7 +15,7 @@ def train(index):
     print('total training data:', data.shape)
     print('size in MB:', data.size * data.itemsize / 1e6)
     classify.save_training_data_to_disk([data, labels],
-                                        fn='training-data-%i.h5',
+                                        fn='training-data-%i.h5' % index,
                                         names=['data', 'labels'])
     rf = classify.DefaultRandomForest()
     rf.fit(data, labels[:, 0])
