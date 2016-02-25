@@ -1,3 +1,4 @@
+import pickle
 import numpy as np
 from gala import imio, agglo, features, classify
 
@@ -45,6 +46,5 @@ if __name__ == '__main__':
             with open('results-%i-%i.pickle' % (training_index, testing_index),
                       'wb') as fout:
                 pickle.dump(tree, fout, protocol=-1)
-    import pickle
     with open('results.pickle', 'wb') as fout:
         pickle.dump(trees, fout, protocol=-1)
