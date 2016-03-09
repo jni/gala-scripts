@@ -13,7 +13,8 @@ for i in range(3, 4):
     
 X0 = np.concatenate(datas, axis=0)
 y0 = np.concatenate(labels)
-idx = np.random.choice(len(y0), size=3000, replace=False)
+# runtime was 5min for 3000 samples, expect ~2h for 72,000
+idx = np.random.choice(len(y0), size=72000, replace=False)
 X, y = X0[idx], y0[idx]
 param_dist = {'n_estimators': [20, 100, 200, 500],
               'max_depth': [3, 5, 20, None],
