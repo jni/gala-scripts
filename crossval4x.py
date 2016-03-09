@@ -1,4 +1,5 @@
 import pickle
+import os
 import numpy as np
 from gala import imio, agglo, features, classify
 
