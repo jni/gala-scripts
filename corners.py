@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+import h5py
 from sklearn.externals import joblib
 from gala import imio, agglo, features, classify
 
@@ -51,10 +52,32 @@ def train_test_pair(training_index, testing_index):
     return tree
 
 
+def write_saalfeld(fn, raw, labels, res=np.array([12., 1, 1])):
+    imio.write_h5_stack(raw, fn, group='raw')
+    imio.write_h5_stack(labels, fn, group='labels')
+    f = h5py.File(fn, 'a')
+    f['/raw'].attrs['resolution'] = res
+    f['/labels'].attrs['resolution'] = res
+    f.close()
+
+
 if __name__ == '__main__':
-    index_pairs = [(tr, 3 - tr) for tr in range(4)]
+    index_pairs = [(3 - ts, ts) for ts in range(4)]
     trees = joblib.Parallel(n_jobs=4)(joblib.delayed(train_test_pair)(*p)
                                       for p in index_pairs)
     trees = dict(zip(index_pairs, trees))
     with open('results.pickle', 'wb') as fout:
         pickle.dump(trees, fout, protocol=-1)
+    images = imio.read_image_stack('/groups/saalfeld/saalfeldlab/concha/sample_A/crop/raw/*.tiff')
+    wss = [imio.read_image_stack('watershed-%i.lzf.h5' % i) for i in range(4)]
+    maps = [t.get_map(0.5) for t in trees]
+    segs = [m[ws] for m, ws in zip(maps, wss)]
+
+    seg = np.zeros(images.shape, dtype=np.uint64)
+    seg[:, :625, :625] = segs[0]
+    seg[:, :625, 625:] = segs[1] + np.max(segs[0])
+    seg[:, 625:, :625] = segs[2] + np.max(segs[0]) + np.max(segs[1])
+    seg[:, 625:, 625:] = segs[3] + np.max(segs[0]) + np.max(segs[1]) + np.max(segs[2])
+
+    write_saalfeld('/groups/saalfeld/saalfeldlab/concha/sample_A/juan/corners-segments2.h5',
+                   images, seg)
