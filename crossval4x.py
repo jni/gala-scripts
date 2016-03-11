@@ -1,3 +1,5 @@
+import pickle
+import os
 import numpy as np
 from gala import imio, agglo, features, classify
 
@@ -5,17 +7,22 @@ from gala import imio, agglo, features, classify
 fman = features.default.snemi3d()
 
 def train(index):
-    ws_tr = imio.read_image_stack('watershed-%i.lzf.h5' % index)
-    pr_tr = imio.read_image_stack('probabilities-%i.lzf.h5' % index) / 255
-    gt_tr = imio.read_image_stack('ground-truth-%i.lzf.h5' % index)
-    g = agglo.Rag(ws_tr, pr_tr,
-                  feature_manager=fman)
-    data, labels = g.learn_agglomerate(gt_tr, fman, min_num_epochs=4)[0][:2]
+    out_fn = 'training-data-%i.h5' % index
+    if os.path.exists(out_fn):
+        data, labels = classify.load_training_data_from_disk(out_fn,
+                                    names=['data', 'labels'])
+    else:
+        ws_tr = imio.read_image_stack('watershed-%i.lzf.h5' % index)
+        pr_tr = imio.read_image_stack('probabilities-%i.lzf.h5' % index) / 255
+        gt_tr = imio.read_image_stack('ground-truth-%i.lzf.h5' % index)
+        g = agglo.Rag(ws_tr, pr_tr,
+                      feature_manager=fman)
+        data, labels = g.learn_agglomerate(gt_tr, fman, min_num_epochs=4)[0][:2]
+        classify.save_training_data_to_disk([data, labels],
+                                            fn='training-data-%i.h5' % index,
+                                            names=['data', 'labels'])
     print('total training data:', data.shape)
     print('size in MB:', data.size * data.itemsize / 1e6)
-    classify.save_training_data_to_disk([data, labels],
-                                        fn='training-data-%i.h5',
-                                        names=['data', 'labels'])
     rf = classify.DefaultRandomForest()
     rf.fit(data, labels[:, 0])
     policy = agglo.classifier_probability(fman, rf)
@@ -45,6 +52,5 @@ if __name__ == '__main__':
             with open('results-%i-%i.pickle' % (training_index, testing_index),
                       'wb') as fout:
                 pickle.dump(tree, fout, protocol=-1)
-    import pickle
     with open('results.pickle', 'wb') as fout:
         pickle.dump(trees, fout, protocol=-1)
