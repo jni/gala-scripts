@@ -2,7 +2,9 @@ from gala import morpho
 from gala import imio
 import numpy as np
 pr = imio.read_image_stack('membrane/*.tiff')
-ws = morpho.watershed_sequence(pr / pr.max(), axis=0, connectivity=2, smooth_thresh=0.02, minimum_seed_size=2)
+pr = 1 - pr / np.max(pr)
+ws = morpho.watershed_sequence(pr, axis=0, n_jobs=4, connectivity=2,
+                               smooth_thresh=0.04, minimum_seed_size=0)
 imio.write_h5_stack(ws, 'watershed.lzf.h5', compression='lzf')
 slices = [(slice(None), slice(None, 625), slice(None, 625)),
           (slice(None), slice(None, 625), slice(625, None)),
