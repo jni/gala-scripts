@@ -1,3 +1,4 @@
+import pickle
 import random
 import itertools as it
 from sklearn.externals import joblib
@@ -27,3 +28,12 @@ def many_sims(n_jobs=2):
                   joblib.delayed(simulate_loads)(n, 1000, q) for n, q in keys
               )
     return dict(zip(keys, results))
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        n_jobs = int(sys.argv[1])
+    result = many_sims(n_jobs)
+    with open('sim-results.pickle', 'wb') as fout:
+        pickle.dump(result, fout, protocol=pickle.HIGHEST_PROTOCOL)
